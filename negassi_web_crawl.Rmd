@@ -1,0 +1,36 @@
+---
+title: "Untitled"
+author: "Negassi Tesfay"
+date: "2/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+url <-"https://www.cdc.gov/physicalactivity/data/inactivity-prevalence-maps/index.html"
+page <- read_html(url)
+table <- html_table(page)
+tbl<-list()
+ for (i in 1:length(table)){
+   mydata <- data.frame(table[[i]][-1,])
+   colnames(mydata)<- c("state","prevalence","ci")
+   tbl[[i]]<-mydata
+ }
+ tbl
+
+```
+
+```{r}
+mydata <- data.frame(table[[1]][-1,])
+colnames(mydata)<- c("state","prevalence","ci")
+mydata
+
+```
+
+```{r}
+
+```
+

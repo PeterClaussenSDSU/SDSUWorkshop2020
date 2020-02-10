@@ -1,0 +1,117 @@
+---
+title: "SYMPO2020 EXERCISES"
+author: "Negassi Tesfay"
+date: "2/8/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exercise 1
+
+```{r}
+path <- 'https://www.wrestlestat.com/nationaltourneyresult'
+html.file <- read_html(path)
+link.nodes <- html_nodes(html.file, xpath = '//a')
+href.attr <- html_attr(link.nodes,'href')
+links.2018 <- href.attr[grepl('.*2018.*individual', href.attr)]
+```
+
+
+```{r}
+path <- 'https://www.wrestlestat.com/nationaltourneyresult/2018/individual/125'
+iter_path <- substr(path,1,nchar(path)-3)
+groups <-substr(links.2018,nchar(links.2018)-2,nchar(links.2018))
+df_list <- list()
+for (i in 1:length(groups)){
+  html_file <-read_html(paste(iter_path,groups[i],sep = ""))
+  dat <- data.frame( html_table(html_file)[[1]])
+   names(dat) <-dat[1,]
+   dat$weight <- groups[i]
+  df_list[[i]] <- dat[-1,]
+ 
+}
+do.call(rbind,df_list)
+
+```
+
+# Exercise 2
+
+
+
+```{r}
+html.file <-read_html("https://intermatwrestle.com/rankings/high_school")
+html_table(html.file)
+```
+
+
+
+```{r}
+html.file <-read_html("https://news.theopenmat.com/high-school-wrestling/high-school-wrestling-rankings/adidas-national-high-school-wrestling-individual-rankings-january-2nd-2020/76034")
+tbl_wrest<-html_table(html.file)
+```
+
+
+```{r}
+dfwr <- as.data.frame(tbl_wrest)
+#dfwr$weight <-ifelse(all(is.na(dfwr[,-1])),dfwr[,1],dfwr[,1])
+dfwr
+```
+
+
+# Exercise 3
+
+```{r}
+htf <-read_html("https://www.itl.nist.gov/div898/strd/anova/anova.html")
+htn<-html_nodes(htf, "tr~ tr+ tr a b")
+
+files<-html_text(htn)
+txt
+```
+
+```{r}
+main_path <-"https://www.itl.nist.gov/div898/strd/anova/"
+dt<-NULL
+for (f in files){
+  url_html <- paste(main_path,f,".dat",sep = "")
+  df<- as.data.frame(read.table(url_html,skip = 60))
+  df$source <-f
+ dt[[f]]<- df[-1]
+ 
+  # ht_node<- html_nodes(ht_file,"a:nth-child(10)")
+  
+}
+do.call(rbind,dt)
+```
+
+html_file <-read_html(paste(iter_path,groups[i],sep = ""))
+  dat <- data.frame( html_table(html_file)[[1]])
+   names(dat) <-dat[1,]
+   dat$weight <- groups[i]
+  df_list[[i]] <- dat[-1,]
+ 
+}
+do.call(rbind,df_list)
+
+
+
+# exercise 4
+
+```{r}
+hs_page <- read_html("https://www.win-magazine.com/category/hs-rankings/")
+hs_nodes <- html_nodes(hs_page,".story-text-noimg a")
+hs_attr <-html_attr(hs_nodes,"href")
+```
+
+
+```{r}
+tables <- list()
+for(i in 1:length(hs_attr)){
+  read <- read_html(hs_attr[i])
+  tables[[i]] <- html_table(read)
+}
+
+tables
+```
