@@ -1,0 +1,62 @@
+---
+title: "Activity Map"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Static data tables
+
+## Scrape tables from the web
+
+Load URL
+
+```{r}
+path = 'https://www.cdc.gov/physicalactivity/data/inactivity-prevalence-maps/index.html'
+library(rvest)
+html.file <- read_html(path)
+```
+
+Determine the number of tables
+
+```{r}
+table.nodes <- html_nodes(html.file, xpath = '//table')
+length(table.nodes)
+```
+
+```{r}
+activity.dat <- html_table(html.file)[[1]]
+head(activity.dat)
+dim(activity.dat)
+```
+
+Is this non-standard?
+
+```{r}
+table.headers <- html_nodes(table.nodes,"th")
+head(table.headers)
+html_text(table.headers)
+```
+
+Apparently not, so, we need to reformat data
+```{r}
+headers <- as.character(activity.dat[1,])
+activity.dat <- activity.dat[-1,]
+names(activity.dat) <- headers
+activity.dat
+activity.dat$Prevalence <- as.numeric(activity.dat$Prevalence)
+```
+
+
+```{r}
+library(maps)
+activity.ratio <- activity.dat$Prevalence/max(activity.dat$Prevalence,na.rm=TRUE)
+activity.percent <- floor(activity.ratio*100)+1
+map.colors <- colorRampPalette(c('lightblue','darkblue'))(100)[activity.percent]
+map("state", col = "lightgray", fill = TRUE, lty = 1, lwd = 1)
+map("state", regions = activity.dat$State,
+  col = map.colors, fill = TRUE, lty = 1,
+ lwd= 1, add = TRUE)
+```
